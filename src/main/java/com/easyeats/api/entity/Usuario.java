@@ -2,50 +2,25 @@ package com.easyeats.api.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-import java.time.LocalDateTime;
-import javax.management.relation.Role;
+import java.util.HashSet;
+import java.util.Set;
 
-@Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-@Table(name = "tb_usuario")
+@Entity
 public class Usuario {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
-    private String nome;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime dataCriacao;
-
-    @Column(nullable = false)
-    private LocalDateTime dataAlteracao;
-
-    @Column(nullable = false)
-    private boolean ativo;
-
-    @PrePersist
-    protected void aoCriar() {
-        LocalDateTime agora = LocalDateTime.now();
-        dataCriacao = agora;
-        dataAlteracao = agora;
-    }
-
-    @PreUpdate
-    protected void aoAtualizar() {
-        dataAlteracao = LocalDateTime.now();
-    }
+    private String username;
+    private String password;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "usuario_roles",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 }

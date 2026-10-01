@@ -1,19 +1,16 @@
 package com.easyeats.api.dto;
 
-import com.easyeats.api.entity.enums.Role;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+import java.util.Set;
+
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsuarioDto {
-
-    private Long id;
-    private String nome;
-    private Role role;
-    private boolean ativo;
+public class UsuarioDTO {
+    private String username;
+    private String password;
+    private Set<String> roles;
 }
