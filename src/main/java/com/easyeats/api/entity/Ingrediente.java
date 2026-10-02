@@ -1,9 +1,7 @@
 package com.easyeats.api.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -36,6 +34,10 @@ public class Ingrediente {
 
     private LocalDateTime dataAlteracao;
 
+    // Evita que o estoque seja incluído no toString() e nos métodos equals/hashCode,
+    // prevenindo problemas de recursão infinita e comparações desnecessárias entre as entidades.
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToOne(mappedBy = "ingrediente")
     private Estoque estoque;
 

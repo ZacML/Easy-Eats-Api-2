@@ -1,7 +1,11 @@
 package com.easyeats.api.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,27 +15,27 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table (name = "tb_produto")
-public class Produto {
+@Table(name = "tb_pedido")
+public class Pedido {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nome;
-    private String descricao;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
 
     private LocalDateTime dataAlteracao;
-    private String flativo;
 
-    // Evita que o estoque seja incluído no toString() e nos métodos equals/hashCode,
-    // prevenindo problemas de recursão infinita e comparações desnecessárias entre as entidades.
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @OneToMany(mappedBy = "produto")
-    private List<ProdutoIngrediente> ingredientes = new ArrayList<>();
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemPedido> itens = new ArrayList<>();
+
+    public void adicionarItem(ItemPedido item) {
+        item.setPedido(this);
+        itens.add(item);
+    }
 
     @PrePersist
     public void antesDeCriar() {
@@ -43,5 +47,4 @@ public class Produto {
     public void antesDeAtualizar() {
         dataAlteracao = LocalDateTime.now();
     }
-
 }
