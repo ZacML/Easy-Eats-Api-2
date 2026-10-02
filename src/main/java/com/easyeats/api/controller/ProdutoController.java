@@ -2,6 +2,7 @@ package com.easyeats.api.controller;
 
 import com.easyeats.api.dto.ProdutoDto;
 import com.easyeats.api.service.ProdutoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class ProdutoController {
     private final ProdutoService service;
 
     @PostMapping
-    public ResponseEntity<ProdutoDto> criar(@RequestBody ProdutoDto produto) {
+    public ResponseEntity<ProdutoDto> criar(@Valid @RequestBody ProdutoDto produto) {
 
         ProdutoDto salvo = service.salvar(produto);
 
@@ -50,6 +51,7 @@ public class ProdutoController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ProdutoDto> alterar(
+            @Valid
             @PathVariable Long id,
             @RequestBody ProdutoDto produto) {
 

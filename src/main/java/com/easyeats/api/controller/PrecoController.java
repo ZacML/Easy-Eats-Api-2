@@ -2,6 +2,7 @@ package com.easyeats.api.controller;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,7 +27,7 @@ public class PrecoController {
     private final PrecoService service;
 
     @PostMapping
-    public ResponseEntity<PrecoDto> criar(@RequestBody PrecoDto preco) {
+    public ResponseEntity<PrecoDto> criar(@Valid @RequestBody PrecoDto preco) {
         PrecoDto salvo = service.salvar(preco);
         if (salvo == null) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -60,7 +61,7 @@ public class PrecoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PrecoDto> alterar(@PathVariable Long id, @RequestBody PrecoDto preco) {
+    public ResponseEntity<PrecoDto> alterar( @Valid @PathVariable Long id, @RequestBody PrecoDto preco) {
         PrecoDto atualizado = service.alterar(id, preco);
         if (atualizado == null) {
             return ResponseEntity.notFound().build();

@@ -2,6 +2,7 @@ package com.easyeats.api.controller;
 
 import com.easyeats.api.dto.ProdutoIngredienteDto;
 import com.easyeats.api.service.ProdutoIngredienteService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,7 @@ public class ProdutoIngredienteController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProdutoIngredienteDto salvar(
+            @Valid
             @RequestBody ProdutoIngredienteDto dto) {
 
         return service.salvar(dto);

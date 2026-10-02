@@ -3,6 +3,7 @@ package com.easyeats.api.controller;
 import com.easyeats.api.dto.UsuarioDTO;
 import com.easyeats.api.entity.Usuario;
 import com.easyeats.api.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class UsuarioController {
     private UsuarioService service;
 
     @PostMapping
-    public ResponseEntity<?> criar(@RequestBody UsuarioDTO dto) {
+    public ResponseEntity<?> criar(@Valid @RequestBody UsuarioDTO dto) {
         service.salvar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

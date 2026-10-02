@@ -27,6 +27,10 @@ public class Estoque {
     @Column(nullable = false)
     private LocalDateTime dtAtualizacao;
 
+    // dentro da classe Estoque, junto dos outros campos
+    @Version
+    private Long versao;
+
     @OneToOne(optional = false)
     @JoinColumn(
             name = "ingrediente_id",

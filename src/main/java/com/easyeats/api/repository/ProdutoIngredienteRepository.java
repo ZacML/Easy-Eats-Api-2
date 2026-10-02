@@ -10,4 +10,6 @@ import com.easyeats.api.entity.ProdutoIngredienteId;
 @Repository
 public interface ProdutoIngredienteRepository
         extends JpaRepository<ProdutoIngrediente, ProdutoIngredienteId> {
+    boolean existsByIngredienteIdAndProdutoFlativo(Long ingredienteId, String flativo);
+
 }

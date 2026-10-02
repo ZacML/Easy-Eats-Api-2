@@ -14,7 +14,8 @@ public class IngredienteMapper {
         return new IngredienteDto(
                 ingrediente.getId(),
                 ingrediente.getNome(),
-                ingrediente.getUnidadeMedida()
+                ingrediente.getUnidadeMedida(),
+                ingrediente.getCusto()
         );
     }
 
@@ -28,6 +29,7 @@ public class IngredienteMapper {
 
         ingrediente.setNome(dto.nome());
         ingrediente.setUnidadeMedida(dto.unidadeMedida());
+        ingrediente.setCusto(dto.custo());
 
         return ingrediente;
     }
