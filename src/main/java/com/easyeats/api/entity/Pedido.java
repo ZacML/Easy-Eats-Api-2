@@ -27,6 +27,14 @@ public class Pedido {
 
     private LocalDateTime dataAlteracao;
 
+    private String mesa;
+
+    private String cliente;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private StatusPedidoEnum status;
+
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -39,12 +47,21 @@ public class Pedido {
 
     @PrePersist
     public void antesDeCriar() {
-        dataCriacao = LocalDateTime.now();
-        dataAlteracao = LocalDateTime.now();
+        LocalDateTime agora = LocalDateTime.now();
+        dataCriacao = agora;
+        dataAlteracao = agora;
+
+        if (status == null) {
+            status = StatusPedidoEnum.ABERTO;
+        }
     }
 
     @PreUpdate
     public void antesDeAtualizar() {
         dataAlteracao = LocalDateTime.now();
+
+        if (status == null) {
+            status = StatusPedidoEnum.ABERTO;
+        }
     }
 }

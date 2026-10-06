@@ -30,7 +30,7 @@ public class PedidoController {
         if (pedidos.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
-        return ResponseEntity.status(HttpStatus.OK).body(pedidos);
+        return ResponseEntity.ok(pedidos);
     }
 
     @GetMapping("/{id}")
@@ -50,6 +50,13 @@ public class PedidoController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(atualizado);
+    }
+
+    @PatchMapping("/{id}/status/{status}")
+    public ResponseEntity<PedidoDto> atualizarStatus(
+            @PathVariable Long id,
+            @PathVariable String status) {
+        return ResponseEntity.ok(service.atualizarStatus(id, status));
     }
 
     @DeleteMapping("/{id}")

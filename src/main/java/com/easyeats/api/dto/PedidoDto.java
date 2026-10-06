@@ -8,8 +8,11 @@ import jakarta.validation.constraints.NotEmpty;
 
 public record PedidoDto(
         Long id,
-
         LocalDateTime dataCriacao,
+        LocalDateTime dataAlteracao,
+        String mesa,
+        String cliente,
+        String status,
 
         @NotEmpty(message = "O pedido deve ter ao menos um item")
         @Valid

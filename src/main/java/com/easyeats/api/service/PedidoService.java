@@ -10,6 +10,7 @@ import com.easyeats.api.dto.PedidoDto;
 import com.easyeats.api.dto.mapper.PedidoMapper;
 import com.easyeats.api.entity.ItemPedido;
 import com.easyeats.api.entity.Pedido;
+import com.easyeats.api.entity.StatusPedidoEnum;
 import com.easyeats.api.repository.PedidoRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,28 +25,40 @@ public class PedidoService {
 
     @Transactional
     public PedidoDto salvar(PedidoDto dto) {
-
         List<ItemPedido> itens = montarItens(dto);
-
-        return mapper.toDto(repository.save(mapper.toEntity(itens)));
+        return mapper.toDto(repository.save(mapper.toEntity(dto, itens)));
     }
 
     @Transactional
     public PedidoDto alterar(Long id, PedidoDto dto) {
-
         Optional<Pedido> pedidoExistente = repository.findById(id);
 
         if (pedidoExistente.isEmpty()) {
             return null;
         }
 
+        Pedido pedido = pedidoExistente.get();
         List<ItemPedido> itens = montarItens(dto);
 
-        // Substitui os itens do pedido (os antigos são removidos por orphanRemoval)
-        Pedido pedido = pedidoExistente.get();
+        pedido.setMesa(dto.mesa());
+        pedido.setCliente(dto.cliente());
+
+        if (dto.status() != null && !dto.status().isBlank()) {
+            pedido.setStatus(StatusPedidoEnum.valueOf(dto.status().toUpperCase()));
+        }
+
         pedido.getItens().clear();
         itens.forEach(pedido::adicionarItem);
 
+        return mapper.toDto(repository.save(pedido));
+    }
+
+    @Transactional
+    public PedidoDto atualizarStatus(Long id, String status) {
+        Pedido pedido = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+
+        pedido.setStatus(StatusPedidoEnum.valueOf(status.toUpperCase()));
         return mapper.toDto(repository.save(pedido));
     }
 

@@ -44,4 +44,10 @@ public class Produto {
         dataAlteracao = LocalDateTime.now();
     }
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "categoria_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Categoria categoria;
+
 }
