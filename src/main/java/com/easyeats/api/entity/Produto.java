@@ -11,27 +11,56 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table (name = "tb_produto")
+@Table(name = "tb_produto")
 public class Produto {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false)
     private String nome;
+
     private String descricao;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataCriacao;
 
     private LocalDateTime dataAlteracao;
+
+    @Column(nullable = false)
     private String flativo;
 
-    // Evita que o estoque seja incluído no toString() e nos métodos equals/hashCode,
-    // prevenindo problemas de recursão infinita e comparações desnecessárias entre as entidades.
+    /*
+     * Categoria do produto.
+     *
+     * Vários produtos podem pertencer
+     * à mesma categoria.
+     */
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "categoria_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Categoria categoria;
+
+    /*
+     * Ingredientes utilizados pelo produto.
+     */
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "produto")
     private List<ProdutoIngrediente> ingredientes = new ArrayList<>();
+
+    /*
+     * Histórico de preços do produto.
+     *
+     * Um produto pode possuir vários preços,
+     * mas apenas um deve estar ativo.
+     */
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL)
+    private List<Preco> precos = new ArrayList<>();
 
     @PrePersist
     public void antesDeCriar() {
@@ -43,11 +72,4 @@ public class Produto {
     public void antesDeAtualizar() {
         dataAlteracao = LocalDateTime.now();
     }
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "categoria_id")
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private Categoria categoria;
-
 }

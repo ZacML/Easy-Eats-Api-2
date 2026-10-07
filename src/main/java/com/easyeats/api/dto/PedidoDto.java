@@ -10,7 +10,7 @@ public record PedidoDto(
         Long id,
         LocalDateTime dataCriacao,
         LocalDateTime dataAlteracao,
-        String mesa,
+        Long mesaId,
         String cliente,
         String status,
 

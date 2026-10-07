@@ -18,6 +18,7 @@ public class CategoriaMapper {
     public static CategoriaDto toDto(Categoria categoria) {
 
         return new CategoriaDto(
+                categoria.getId(),
                 categoria.getNome(),
                 categoria.getFlativo()
         );

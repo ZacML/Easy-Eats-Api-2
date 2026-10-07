@@ -27,9 +27,13 @@ public class Pedido {
 
     private LocalDateTime dataAlteracao;
 
-    private String mesa;
-
     private String cliente;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "mesa_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Mesa mesa;
 
     @Enumerated(EnumType.STRING)
     @Column

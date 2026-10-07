@@ -12,6 +12,7 @@ import com.easyeats.api.entity.ItemPedido;
 import com.easyeats.api.entity.Pedido;
 import com.easyeats.api.entity.StatusPedidoEnum;
 import com.easyeats.api.repository.PedidoRepository;
+import com.easyeats.api.repository.MesaRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +23,7 @@ public class PedidoService {
     private final PedidoRepository repository;
     private final ItemPedidoService itemPedidoService;
     private final PedidoMapper mapper;
+    private final MesaRepository mesaRepository;
 
     @Transactional
     public PedidoDto salvar(PedidoDto dto) {
@@ -40,7 +42,9 @@ public class PedidoService {
         Pedido pedido = pedidoExistente.get();
         List<ItemPedido> itens = montarItens(dto);
 
-        pedido.setMesa(dto.mesa());
+        pedido.setMesa(mesaRepository.findById(dto.mesaId())
+                .filter(mesa -> "S".equals(mesa.getFlativo()))
+                .orElseThrow(() -> new RuntimeException("Mesa não encontrada ou inativa")));
         pedido.setCliente(dto.cliente());
 
         if (dto.status() != null && !dto.status().isBlank()) {

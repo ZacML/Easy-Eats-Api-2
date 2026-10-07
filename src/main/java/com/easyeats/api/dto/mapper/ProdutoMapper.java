@@ -6,24 +6,29 @@ import com.easyeats.api.entity.Produto;
 import com.easyeats.api.repository.CategoriaRepository;
 
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Component;
 
 @Component
-@RequiredArgsConstructor 
+@RequiredArgsConstructor
 public class ProdutoMapper {
 
     private final CategoriaRepository categoriaRepository;
 
-    public ProdutoDto toDto(Produto produto) {
+    public ProdutoDto toDto(
+            Produto produto,
+            java.math.BigDecimal preco
+    ) {
+
         return new ProdutoDto(
+
                 produto.getId(),
                 produto.getNome(),
                 produto.getDescricao(),
                 produto.getFlativo(),
                 produto.getCategoria() != null
                         ? produto.getCategoria().getId()
-                        : null
+                        : null,
+                preco
         );
     }
 
@@ -45,13 +50,16 @@ public class ProdutoMapper {
     private Categoria buscarCategoria(Long categoriaId) {
 
         if (categoriaId == null) {
-            return null;
+            throw new IllegalArgumentException(
+                    "A categoria é obrigatória"
+            );
         }
 
         return categoriaRepository.findById(categoriaId)
                 .orElseThrow(() ->
                         new IllegalArgumentException(
-                                "Categoria não encontrada: " + categoriaId
+                                "Categoria não encontrada: "
+                                        + categoriaId
                         )
                 );
     }
