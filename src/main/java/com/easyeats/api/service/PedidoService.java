@@ -1,5 +1,6 @@
 package com.easyeats.api.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,8 +28,19 @@ public class PedidoService {
 
     @Transactional
     public PedidoDto salvar(PedidoDto dto) {
+
         List<ItemPedido> itens = montarItens(dto);
-        return mapper.toDto(repository.save(mapper.toEntity(dto, itens)));
+
+        Pedido pedido = mapper.toEntity(dto, itens);
+
+        BigDecimal valorTotal = itens.stream()
+                .map(item -> item.getValorUnitario()
+                        .multiply(BigDecimal.valueOf(item.getQuantidade())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        pedido.setValorTotal(valorTotal);
+
+        return mapper.toDto(repository.save(pedido));
     }
 
     @Transactional

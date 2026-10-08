@@ -30,6 +30,7 @@ public class PedidoMapper {
                 pedido.getStatus() == null
                         ? StatusPedidoEnum.ABERTO.name()
                         : pedido.getStatus().name(),
+                pedido.getValorTotal(),
                 pedido.getItens().stream()
                         .map(itemMapper::toDto)
                         .toList()

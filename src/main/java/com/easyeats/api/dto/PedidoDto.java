@@ -1,5 +1,6 @@
 package com.easyeats.api.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,6 +14,7 @@ public record PedidoDto(
         Long mesaId,
         String cliente,
         String status,
+        BigDecimal valorTotal,
 
         @NotEmpty(message = "O pedido deve ter ao menos um item")
         @Valid
