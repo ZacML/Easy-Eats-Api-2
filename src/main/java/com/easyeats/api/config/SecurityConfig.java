@@ -1,77 +1,78 @@
 package com.easyeats.api.config;
 
-import com.easyeats.api.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.easyeats.api.security.JwtAuthFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http
+    ) throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS
+                        )
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/sec/publico/**","/swagger-ui/index.html/**").permitAll()
-                        .requestMatchers("/usuarios/**", "/error").permitAll()
-                        .requestMatchers("/sec/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/sec/user/**").hasAnyRole("USER", "ADMIN")
+
+                        // Rotas públicas
+                        .requestMatchers(
+                                "/auth/login",
+                                "/usuarios",
+                                "/sec/publico/**"
+                        ).permitAll()
+
+                        // USER ou ADMIN
+                        .requestMatchers(
+                                "/sec/user/**"
+                        ).hasAnyRole("USER", "ADMIN")
+
+                        // Apenas ADMIN
+                        .requestMatchers(
+                                "/sec/admin/**"
+                        ).hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
-
-                .httpBasic(httpBasic -> {
-                });
+                .addFilterBefore(
+                        jwtAuthFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> usuarioRepository.findByUsername(username)
-                .map(usuario -> {
-
-                    List<GrantedAuthority> authorities = usuario.getRoles().stream()
-                            .map(role -> new SimpleGrantedAuthority(
-                                    "ROLE_" + role.getNome()
-                            ))
-                            .collect(Collectors.toList());
-
-                    return new org.springframework.security.core.userdetails.User(
-                            usuario.getUsername(),
-                            usuario.getPassword(),
-                            authorities
-                    );
-                })
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("Usuário não encontrado")
-                );
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration
+    ) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }
