@@ -9,6 +9,7 @@ import java.util.List;
 
 @Data
 @Entity
+@Builder 
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "tb_produto")
@@ -46,6 +47,7 @@ public class Produto {
     /*
      * Ingredientes utilizados pelo produto.
      */
+    @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "produto")
@@ -57,6 +59,7 @@ public class Produto {
      * Um produto pode possuir vários preços,
      * mas apenas um deve estar ativo.
      */
+    @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "produto", cascade = CascadeType.ALL)

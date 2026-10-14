@@ -2,6 +2,7 @@ package com.easyeats.api.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@Builder
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,14 +42,21 @@ public class Pedido {
     @Column
     private StatusPedidoEnum status;
 
+    @Column(name = "valor_total", nullable = false, precision = 10, scale = 2)
+    private BigDecimal valorTotal;
+
+    @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemPedido> itens = new ArrayList<>();
 
     public void adicionarItem(ItemPedido item) {
+        if (this.itens == null) {
+            this.itens = new ArrayList<>();
+        }
         item.setPedido(this);
-        itens.add(item);
+        this.itens.add(item);
     }
 
     @PrePersist
@@ -69,7 +78,4 @@ public class Pedido {
             status = StatusPedidoEnum.ABERTO;
         }
     }
-
-    @Column(name = "valor_total", nullable = false, precision = 10, scale = 2)
-    private BigDecimal valorTotal = BigDecimal.ZERO;
 }
