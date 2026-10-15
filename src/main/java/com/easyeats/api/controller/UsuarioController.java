@@ -34,13 +34,4 @@ public class UsuarioController {
         return service.listarPorNome(username);
     }
 
-    @PostMapping("/login")
-    public Usuario login(
-            @RequestParam String username,
-            @RequestParam String password
-    ) {
-        return service.login(username, password);
-    }
-
-
 }
