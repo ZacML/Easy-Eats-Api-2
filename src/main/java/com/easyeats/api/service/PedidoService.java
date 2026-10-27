@@ -1,9 +1,12 @@
 package com.easyeats.api.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,5 +102,23 @@ public class PedidoService {
         return dto.itens().stream()
                 .map(itemPedidoService::montarItem)
                 .toList();
+    }
+
+    private static final int LIMITE_HISTORICO = 10;
+
+    @Transactional(readOnly = true)
+    public List<PedidoDto> listarPorStatus(StatusPedidoEnum status, LocalDateTime antesDe) {
+        List<Pedido> pedidos;
+
+        if (status == StatusPedidoEnum.FINALIZADO || status == StatusPedidoEnum.CANCELADO) {
+            LocalDate hoje = LocalDate.now();
+            LocalDateTime fim = antesDe != null ? antesDe : hoje.plusDays(1).atStartOfDay();
+            pedidos = repository.buscarHistorico(
+                    status, hoje.atStartOfDay(), fim, PageRequest.of(0, LIMITE_HISTORICO));
+        } else {
+            pedidos = repository.findByStatusOrderByDataCriacaoAsc(status);
+        }
+
+        return pedidos.stream().map(mapper::toDto).toList();
     }
 }

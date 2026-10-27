@@ -26,6 +26,7 @@ public class AuthController {
             @RequestParam String username,
             @RequestParam String password
     ) {
+        log.info("Tentativa de login para usuário: {}", username);
 
         Authentication authentication =
                 authenticationManager.authenticate(
@@ -34,6 +35,8 @@ public class AuthController {
                                 password
                         )
                 );
+
+        log.info("Autenticação realizada com sucesso");
 
         UserDetails userDetails =
                 (UserDetails) authentication.getPrincipal();
