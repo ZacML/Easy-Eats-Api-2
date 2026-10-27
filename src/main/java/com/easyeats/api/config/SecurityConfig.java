@@ -43,7 +43,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/login",
                                 "/usuarios",
-                                "/sec/publico/**"
+                                "/sec/publico/**",
+                                "/actuator/**"
                         ).permitAll()
 
                         // USER ou ADMIN

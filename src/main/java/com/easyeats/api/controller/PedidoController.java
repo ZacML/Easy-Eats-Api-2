@@ -1,7 +1,10 @@
 package com.easyeats.api.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import com.easyeats.api.entity.StatusPedidoEnum;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,5 +66,13 @@ public class PedidoController {
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
         service.excluir(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(params = "status")
+    public ResponseEntity<List<PedidoDto>> listarPorStatus(
+            @RequestParam StatusPedidoEnum status,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime antesDe) {
+        return ResponseEntity.ok(service.listarPorStatus(status, antesDe));
     }
 }

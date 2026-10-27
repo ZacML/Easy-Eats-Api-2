@@ -18,6 +18,9 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    private static final org.slf4j.Logger logger =
+            org.slf4j.LoggerFactory.getLogger(JwtAuthFilter.class);
+
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
 
@@ -69,8 +72,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 }
             }
 
-        } catch (Exception ignored) {
-            // Token inválido. A requisição seguirá sem autenticação.
+        } catch (Exception e) {
+            logger.warn("Falha ao validar JWT: {}", e.getMessage());
         }
 
         filterChain.doFilter(request, response);
