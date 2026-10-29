@@ -1,0 +1,67 @@
+# Easy Eats: banco (PostgreSQL) + backend (Spring Boot) + frontend (Angular/nginx).
+# Subir tudo:  docker compose up -d --build
+# Todos os valores abaixo têm padrão de DESENVOLVIMENTO; para alterar, copie .env.example para .env.
+name: easy-eats
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-easy_eats}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-easyeats}
+    ports:
+      - "${DB_PORT:-5434}:5432" # opcional (DBeaver/psql no host); 5434 evita conflito com um Postgres local
+    volumes:
+      - pgdata:/var/lib/postgresql/data           # persistência dos dados
+      - ./db/init:/docker-entrypoint-initdb.d:ro  # scripts 01-schema.sql e 02-seed.sql (1ª inicialização)
+    healthcheck:
+      # -h db força conexão TCP: durante a inicialização o Postgres só aceita socket local,
+      # então o banco só é considerado saudável depois que os scripts terminaram.
+      test: ["CMD-SHELL", "pg_isready -h db -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [easy-eats-net]
+
+  api:
+    build: .
+    environment:
+      # Sobrescrevem o application.properties (relaxed binding do Spring Boot), sem alterar código.
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME:-easy_eats}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-easyeats}
+      JWT_SECRET: ${JWT_SECRET:-tCreLDDXjNCxoCM8RK8R98PH55onGfippEEXyHHrW2w=}
+      # O properties expõe todos os endpoints do Actuator (e /actuator/** é público): limita a /health.
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health
+    ports:
+      - "${API_PORT:-8080}:8080" # opcional: acesso direto à API (Postman, app mobile/Expo)
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://api:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    networks: [easy-eats-net]
+
+  web:
+    # Por padrão builda o frontend direto do GitHub (basta clonar ESTE repositório).
+    # Para usar uma cópia local: FRONTEND_CONTEXT=../Easy-Eats no .env.
+    build: ${FRONTEND_CONTEXT:-https://github.com/ZacML/Easy-Eats.git#master}
+    environment:
+      BACKEND_URL: http://api:8080 # nginx encaminha /api/* para o serviço "api" pelo nome
+    ports:
+      - "${WEB_PORT:-4200}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [easy-eats-net]
+
+networks:
+  easy-eats-net:
+
+volumes:
+  pgdata:
