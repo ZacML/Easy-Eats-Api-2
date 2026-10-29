@@ -48,9 +48,9 @@ services:
     networks: [easy-eats-net]
 
   web:
-    # Por padrão builda o frontend direto do GitHub (basta clonar ESTE repositório).
-    # Para usar uma cópia local: FRONTEND_CONTEXT=../Easy-Eats no .env.
-    build: ${FRONTEND_CONTEXT:-https://github.com/ZacML/Easy-Eats.git#feat/docker}
+    # O frontend (repositório Easy-Eats) deve estar clonado ao lado deste, em ../Easy-Eats.
+    # Para outro caminho: FRONTEND_CONTEXT=/caminho/Easy-Eats no .env.
+    build: ${FRONTEND_CONTEXT:-../Easy-Eats}
     environment:
       BACKEND_URL: http://api:8080 # nginx encaminha /api/* para o serviço "api" pelo nome
     ports:
