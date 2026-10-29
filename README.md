@@ -45,7 +45,7 @@ cp .env.example .env     # edite os valores; o .env não é versionado
 ## Inicialização
 
 ```bash
-git clone https://github.com/ZacML/Easy-Eats-Api-2.git
+git clone -b feat/docker https://github.com/ZacML/Easy-Eats-Api-2.git
 cd Easy-Eats-Api-2
 docker compose up -d --build
 ```

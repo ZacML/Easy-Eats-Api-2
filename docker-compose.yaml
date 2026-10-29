@@ -50,7 +50,7 @@ services:
   web:
     # Por padrão builda o frontend direto do GitHub (basta clonar ESTE repositório).
     # Para usar uma cópia local: FRONTEND_CONTEXT=../Easy-Eats no .env.
-    build: ${FRONTEND_CONTEXT:-https://github.com/ZacML/Easy-Eats.git#master}
+    build: ${FRONTEND_CONTEXT:-https://github.com/ZacML/Easy-Eats.git#feat/docker}
     environment:
       BACKEND_URL: http://api:8080 # nginx encaminha /api/* para o serviço "api" pelo nome
     ports:
