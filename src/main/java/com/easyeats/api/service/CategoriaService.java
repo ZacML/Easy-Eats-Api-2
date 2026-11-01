@@ -2,6 +2,7 @@ package com.easyeats.api.service;
 
 import com.easyeats.api.dto.CategoriaDto;
 import com.easyeats.api.entity.Categoria;
+import com.easyeats.api.exception.RecursoNaoEncontradoException;
 import com.easyeats.api.repository.CategoriaRepository;
 import org.springframework.stereotype.Service;
 import com.easyeats.api.dto.mapper.CategoriaMapper;
@@ -42,8 +43,7 @@ public class CategoriaService {
     public Categoria buscarPorId(Long id) {
 
         return categoriaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(
-                        "Categoria não encontrada"));
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Categoria", id));   // ALTERADO
     }
 
     // Editar categoria

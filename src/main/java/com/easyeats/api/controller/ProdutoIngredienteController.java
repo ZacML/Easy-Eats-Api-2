@@ -1,6 +1,7 @@
 package com.easyeats.api.controller;
 
 import com.easyeats.api.dto.ProdutoIngredienteDto;
+import com.easyeats.api.dto.ProdutoIngredienteLoteDto;
 import com.easyeats.api.service.ProdutoIngredienteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,9 +19,9 @@ public class ProdutoIngredienteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ProdutoIngredienteDto salvar(
+    public ProdutoIngredienteLoteDto salvar(
             @Valid
-            @RequestBody ProdutoIngredienteDto dto) {
+            @RequestBody ProdutoIngredienteLoteDto dto) {
 
         return service.salvar(dto);
     }

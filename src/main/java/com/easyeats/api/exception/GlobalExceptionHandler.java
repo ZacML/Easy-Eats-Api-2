@@ -21,6 +21,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> regra(RegraNegocioException e) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("erro", e.getMessage()));
     }
+    
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> argumentoInvalido(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(Map.of("erro", e.getMessage()));
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> validacao(MethodArgumentNotValidException e) {
@@ -29,10 +34,10 @@ public class GlobalExceptionHandler {
                 .toList();
         return ResponseEntity.badRequest().body(Map.of("erro", "Dados inválidos", "campos", campos));
     }
+
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<Map<String, Object>> conflito(ObjectOptimisticLockingFailureException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("erro", "O estoque foi alterado por outra operação. Tente novamente."));
     }
 }
-
