@@ -28,20 +28,28 @@ public class PedidoService {
     private final ItemPedidoService itemPedidoService;
     private final PedidoMapper mapper;
     private final MesaRepository mesaRepository;
+    private final EstoqueService estoqueService;
 
     @Transactional
     public PedidoDto salvar(PedidoDto dto) {
 
         List<ItemPedido> itens = montarItens(dto);
+        estoqueService.validarDisponibilidade(itens);
 
         Pedido pedido = mapper.toEntity(dto, itens);
 
+        // cálculo do valorTotal
         BigDecimal valorTotal = itens.stream()
                 .map(item -> item.getValorUnitario()
                         .multiply(BigDecimal.valueOf(item.getQuantidade())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         pedido.setValorTotal(valorTotal);
+
+        // pedido já criado em preparo: a baixa acontece agora, na mesma transação
+        if (pedido.getStatus() == StatusPedidoEnum.EM_PREPARO) {
+            definirStatus(pedido, StatusPedidoEnum.EM_PREPARO);
+        }
 
         return mapper.toDto(repository.save(pedido));
     }
@@ -57,6 +65,11 @@ public class PedidoService {
         Pedido pedido = pedidoExistente.get();
         List<ItemPedido> itens = montarItens(dto);
 
+        // se o estoque do pedido já foi baixado, os novos itens não passam por nova validação
+        if (!pedido.isEstoqueBaixado()) {
+            estoqueService.validarDisponibilidade(itens);
+        }
+
         pedido.setMesa(mesaRepository.findById(dto.mesaId())
                 .filter(mesa -> "S".equals(mesa.getFlativo()))
                 .orElseThrow(() -> new RuntimeException("Mesa não encontrada ou inativa")));
@@ -69,16 +82,34 @@ public class PedidoService {
         pedido.getItens().clear();
         itens.forEach(pedido::adicionarItem);
 
+        // depois de trocar os itens, para a baixa (se houver) usar os itens novos
+        if (dto.status() != null && !dto.status().isBlank()) {
+            definirStatus(pedido, StatusPedidoEnum.valueOf(dto.status().toUpperCase()));
+        }
+
         return mapper.toDto(repository.save(pedido));
     }
 
     @Transactional
     public PedidoDto atualizarStatus(Long id, String status) {
-        Pedido pedido = repository.findById(id)
+        // lock no pedido: duas chamadas simultâneas para o mesmo pedido são executadas uma por vez
+        Pedido pedido = repository.buscarPorIdParaAtualizar(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
 
-        pedido.setStatus(StatusPedidoEnum.valueOf(status.toUpperCase()));
+        definirStatus(pedido, StatusPedidoEnum.valueOf(status.toUpperCase()));
         return mapper.toDto(repository.save(pedido));
+    }
+    
+    /**
+     * Único ponto que altera o status. Ao entrar em EM_PREPARO baixa os ingredientes do estoque,
+     * uma única vez por pedido (flag estoqueBaixado). Se faltar estoque, lança exceção e nada é alterado.
+     */
+    private void definirStatus(Pedido pedido, StatusPedidoEnum novoStatus) {
+        if (novoStatus == StatusPedidoEnum.EM_PREPARO && !pedido.isEstoqueBaixado()) {
+            estoqueService.baixarPorItens(pedido.getItens());
+            pedido.setEstoqueBaixado(true);
+        }
+        pedido.setStatus(novoStatus);
     }
 
     @Transactional(readOnly = true)

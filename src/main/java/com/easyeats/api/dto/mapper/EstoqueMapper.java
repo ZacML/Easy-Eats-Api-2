@@ -20,7 +20,7 @@ public class EstoqueMapper {
             nomeIngrediente = estoque.getIngrediente().getNome();
         }
 
-        boolean abaixoDoMinimo = estoque.getQtdAtual() <= estoque.getQtdMinima();   // novo
+        boolean abaixoDoMinimo = estoque.getQtdAtual().compareTo(estoque.getQtdMinima()) <= 0;
 
         return new EstoqueDto(
                 estoque.getId(),
@@ -29,7 +29,7 @@ public class EstoqueMapper {
                 estoque.getDtAtualizacao(),
                 idIngrediente,
                 nomeIngrediente,
-                abaixoDoMinimo                                                         // novo
+                abaixoDoMinimo
         );
     }
 

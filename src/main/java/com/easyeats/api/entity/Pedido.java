@@ -45,6 +45,11 @@ public class Pedido {
     @Column(name = "valor_total", nullable = false, precision = 10, scale = 2)
     private BigDecimal valorTotal;
 
+    // Marca que os ingredientes do pedido já foram baixados do estoque (garante a baixa uma única vez).
+    // default false: o Hibernate (ddl-auto=update) acrescenta o NOT NULL e as linhas já existentes ficam false
+    @Column(name = "estoque_baixado", nullable = false, columnDefinition = "boolean default false")
+    private boolean estoqueBaixado;
+
     @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

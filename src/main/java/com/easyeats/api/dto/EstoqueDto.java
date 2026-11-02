@@ -1,8 +1,10 @@
 package com.easyeats.api.dto;
 
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record EstoqueDto(
@@ -11,11 +13,13 @@ public record EstoqueDto(
 
         @NotNull(message = "A quantidade atual é obrigatória")
         @PositiveOrZero(message = "A quantidade atual não pode ser negativa")
-        Integer qtdAtual,
+        @Digits(integer = 9, fraction = 3, message = "Use no máximo 3 casas decimais")
+        BigDecimal qtdAtual,
 
         @NotNull(message = "A quantidade mínima é obrigatória")
         @PositiveOrZero(message = "A quantidade mínima não pode ser negativa")
-        Integer qtdMinima,
+        @Digits(integer = 9, fraction = 3, message = "Use no máximo 3 casas decimais")
+        BigDecimal qtdMinima,
 
         LocalDateTime dtAtualizacao,
 

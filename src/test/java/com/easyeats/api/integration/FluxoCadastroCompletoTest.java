@@ -53,6 +53,12 @@ class FluxoCadastroCompletoTest extends IntegrationTestBase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(3));
 
+        // 4.1) estoque dos ingredientes (o pedido só é aceito se houver estoque para a ficha técnica)
+        for (Long ingredienteId : new Long[]{paoId, carneId, queijoId}) {
+            post("/estoques", "{\"qtdAtual\": 100, \"qtdMinima\": 10, \"idIngrediente\": %d}".formatted(ingredienteId))
+                    .andExpect(status().isCreated());
+        }
+
         // 5) mesa e pedido
         Long mesaId = idDaResposta(post("/mesa", "{\"numero\": 1}").andExpect(status().isCreated()));
 

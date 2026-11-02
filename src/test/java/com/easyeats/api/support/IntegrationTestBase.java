@@ -1,6 +1,7 @@
 package com.easyeats.api.support;
 
 import com.easyeats.api.entity.Categoria;
+import com.easyeats.api.entity.Estoque;
 import com.easyeats.api.entity.Ingrediente;
 import com.easyeats.api.entity.Mesa;
 import com.easyeats.api.entity.Preco;
@@ -9,6 +10,7 @@ import com.easyeats.api.entity.ProdutoIngrediente;
 import com.easyeats.api.entity.ProdutoIngredienteId;
 import com.easyeats.api.entity.Usuario;
 import com.easyeats.api.repository.CategoriaRepository;
+import com.easyeats.api.repository.EstoqueRepository;
 import com.easyeats.api.repository.IngredienteRepository;
 import com.easyeats.api.repository.MesaRepository;
 import com.easyeats.api.repository.PedidoRepository;
@@ -71,6 +73,7 @@ public abstract class IntegrationTestBase {
     @Autowired protected ProdutoIngredienteRepository produtoIngredienteRepository;
     @Autowired protected MesaRepository mesaRepository;
     @Autowired protected PedidoRepository pedidoRepository;
+    @Autowired protected EstoqueRepository estoqueRepository;
 
     protected MockMvc mockMvc;
     private String token;
@@ -94,6 +97,7 @@ public abstract class IntegrationTestBase {
         produtoIngredienteRepository.deleteAll();
         precoRepository.deleteAll();
         produtoRepository.deleteAll();
+        estoqueRepository.deleteAllInBatch();
         ingredienteRepository.deleteAll();
         categoriaRepository.deleteAll();
         mesaRepository.deleteAll();
@@ -259,5 +263,17 @@ public abstract class IntegrationTestBase {
         vinculo.setIngrediente(ingrediente);
         vinculo.setQuantidade(quantidade);
         return produtoIngredienteRepository.save(vinculo);
+    }
+
+    protected Estoque criarEstoque(Ingrediente ingrediente, int qtdAtual) {
+        return criarEstoque(ingrediente, BigDecimal.valueOf(qtdAtual));
+    }
+
+    protected Estoque criarEstoque(Ingrediente ingrediente, BigDecimal qtdAtual) {
+        Estoque estoque = new Estoque();
+        estoque.setIngrediente(ingrediente);
+        estoque.setQtdAtual(qtdAtual);
+        estoque.setQtdMinima(BigDecimal.ZERO);
+        return estoqueRepository.save(estoque);
     }
 }

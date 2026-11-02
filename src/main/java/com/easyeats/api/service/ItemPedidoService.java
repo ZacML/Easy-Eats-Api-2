@@ -31,6 +31,7 @@ public class ItemPedidoService {
     private final ProdutoRepository produtoRepository;
     private final PrecoRepository precoRepository;
     private final ItemPedidoMapper mapper;
+    private final EstoqueService estoqueService;
 
     @Transactional
     public ItemPedidoDto adicionar(Long pedidoId, ItemPedidoDto dto) {
@@ -42,6 +43,7 @@ public class ItemPedidoService {
         }
 
         ItemPedido item = montarItem(dto);
+        estoqueService.validarDisponibilidade(List.of(item));   // só valida, não baixa estoque
         pedido.get().adicionarItem(item);
 
         return mapper.toDto(repository.save(item));

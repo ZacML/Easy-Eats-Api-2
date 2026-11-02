@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -18,11 +19,12 @@ public class Estoque {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Integer qtdAtual;
+    // Na mesma unidade do ingrediente (kg, g, ml, un...), com até 3 casas decimais
+    @Column(nullable = false, precision = 12, scale = 3)
+    private BigDecimal qtdAtual;
 
-    @Column(nullable = false)
-    private Integer qtdMinima;
+    @Column(nullable = false, precision = 12, scale = 3)
+    private BigDecimal qtdMinima;
 
     @Column(nullable = false)
     private LocalDateTime dtAtualizacao;
