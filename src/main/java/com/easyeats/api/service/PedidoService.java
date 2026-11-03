@@ -29,6 +29,7 @@ public class PedidoService {
     private final PedidoMapper mapper;
     private final MesaRepository mesaRepository;
     private final EstoqueService estoqueService;
+    private final PushService pushService;
 
     @Transactional
     public PedidoDto salvar(PedidoDto dto) {
@@ -63,6 +64,7 @@ public class PedidoService {
         }
 
         Pedido pedido = pedidoExistente.get();
+        StatusPedidoEnum anterior = pedido.getStatus();
         List<ItemPedido> itens = montarItens(dto);
 
         // se o estoque do pedido já foi baixado, os novos itens não passam por nova validação
@@ -87,7 +89,10 @@ public class PedidoService {
             definirStatus(pedido, StatusPedidoEnum.valueOf(dto.status().toUpperCase()));
         }
 
-        return mapper.toDto(repository.save(pedido));
+        PedidoDto resultado = mapper.toDto(repository.save(pedido));
+        notificarSeFicouPronto(pedido, anterior);
+        return resultado;
+    
     }
 
     @Transactional
@@ -96,10 +101,13 @@ public class PedidoService {
         Pedido pedido = repository.buscarPorIdParaAtualizar(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
 
+        StatusPedidoEnum anterior = pedido.getStatus();
         definirStatus(pedido, StatusPedidoEnum.valueOf(status.toUpperCase()));
-        return mapper.toDto(repository.save(pedido));
+        PedidoDto resultado = mapper.toDto(repository.save(pedido));
+        notificarSeFicouPronto(pedido, anterior);
+        return resultado;
     }
-    
+
     /**
      * Único ponto que altera o status. Ao entrar em EM_PREPARO baixa os ingredientes do estoque,
      * uma única vez por pedido (flag estoqueBaixado). Se faltar estoque, lança exceção e nada é alterado.
@@ -111,6 +119,13 @@ public class PedidoService {
         }
         pedido.setStatus(novoStatus);
     }
+
+    private void notificarSeFicouPronto(Pedido pedido, StatusPedidoEnum anterior) {
+    if (anterior == StatusPedidoEnum.EM_PREPARO && pedido.getStatus() == StatusPedidoEnum.FINALIZADO) {
+        pushService.notificarPedidoPronto(
+                pedido.getId(), String.format("Mesa %02d", pedido.getMesa().getNumero()));
+    }
+}
 
     @Transactional(readOnly = true)
     public List<PedidoDto> listarTodos() {
